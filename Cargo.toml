@@ -1,0 +1,25 @@
+[package]
+name = "rate-limit-core"
+version = "0.1.0"
+edition = "2021"
+rust-version = "1.70"
+description = "Zero-dependency, zero-allocation, lock-free token bucket rate limiter for Rust (std + no_std)."
+license = "Apache-2.0"
+readme = "README.md"
+documentation = "https://docs.rs/rate-limit-core"
+homepage = "https://docs.rs/rate-limit-core"
+keywords = ["rate-limit", "token-bucket", "lock-free", "no-std", "throttling"]
+categories = ["algorithms", "concurrency", "no-std"]
+exclude = ["Test.md", "тз.md"]
+
+[features]
+default = ["std"]
+std = []
+
+[dev-dependencies]
+criterion = "0.8.2"
+
+[[bench]]
+name = "compare"
+harness = false
+required-features = ["std"]
