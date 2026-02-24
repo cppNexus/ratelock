@@ -242,4 +242,4 @@ MIRIFLAGS="-Zmiri-disable-isolation" cargo +nightly miri test
 
 ## License
 
-Apache-2.0, see `LICENSE.md`.
+- [Apache License, Version 2.0](LICENSE)
