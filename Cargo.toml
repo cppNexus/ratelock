@@ -1,5 +1,6 @@
 [package]
 name = "rate-limit-core"
+authors = ["CppNexus <cppnexus@proton.me>"]
 version = "0.1.0"
 edition = "2021"
 rust-version = "1.70"
@@ -7,11 +8,11 @@ description = "Zero-dependency, zero-allocation, lock-free token bucket rate lim
 license = "Apache-2.0"
 readme = "README.md"
 documentation = "https://docs.rs/rate-limit-core"
-homepage = "https://docs.rs/rate-limit-core"
+homepage = "https://github.com/cppNexus/rate-limit-core"
 repository = "https://github.com/cppNexus/rate-limit-core.git"
 keywords = ["rate-limit", "token-bucket", "lock-free", "no-std", "throttling"]
 categories = ["algorithms", "concurrency", "no-std"]
-exclude = ["Test.md", "тз.md"]
+exclude = [".github/", "target/"]
 
 [features]
 default = ["std"]

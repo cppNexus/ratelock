@@ -176,6 +176,68 @@ fn allow_n_concurrent_only_one_wins() {
     assert_eq!(limiter.remaining(), 40);
 }
 
+#[cfg(feature = "std")]
+#[test]
+fn refill_under_contention_stays_bounded() {
+    use std::sync::{Arc, Barrier};
+    use std::thread;
+
+    #[derive(Clone)]
+    struct ArcClock(Arc<MockClock>);
+
+    impl Clock for ArcClock {
+        fn now_ns(&self) -> u64 {
+            self.0.now_ns()
+        }
+    }
+
+    let clock = Arc::new(MockClock::new(0));
+    let limiter = Arc::new(RateLimiter::with_clock(
+        2_000,
+        100_000,
+        ArcClock(Arc::clone(&clock)),
+    ));
+
+    // Create headroom so refill and consume race on token updates.
+    assert!(limiter.allow_n(1_500));
+    clock.advance_ms(10);
+
+    let barrier = Arc::new(Barrier::new(12));
+    let mut handles = Vec::new();
+
+    // Threads driving refill.
+    for _ in 0..4 {
+        let lim = Arc::clone(&limiter);
+        let clk = Arc::clone(&clock);
+        let bar = Arc::clone(&barrier);
+        handles.push(thread::spawn(move || {
+            bar.wait();
+            for _ in 0..5_000 {
+                clk.advance_ns(500);
+                let _ = lim.remaining();
+            }
+        }));
+    }
+
+    // Threads consuming tokens concurrently with refill.
+    for _ in 0..8 {
+        let lim = Arc::clone(&limiter);
+        let bar = Arc::clone(&barrier);
+        handles.push(thread::spawn(move || {
+            bar.wait();
+            for _ in 0..5_000 {
+                let _ = lim.allow();
+            }
+        }));
+    }
+
+    for handle in handles {
+        handle.join().unwrap();
+    }
+
+    assert!(limiter.remaining() <= limiter.capacity());
+}
+
 #[test]
 fn refill_after_one_second() {
     let clock = MockClock::new(0);
