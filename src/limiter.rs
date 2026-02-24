@@ -94,25 +94,14 @@ impl<C: Clock> RateLimiter<C> {
             return false;
         }
 
-        loop {
-            self.try_refill(self.clock.now_ns());
-
-            let current = self.tokens.load(Ordering::Acquire);
-            if current < n {
-                return false;
-            }
-
-            let next = current - n;
-            if self
-                .tokens
-                .compare_exchange_weak(current, next, Ordering::AcqRel, Ordering::Acquire)
-                .is_ok()
-            {
-                return true;
-            }
-
-            core::hint::spin_loop();
+        // Fast path for the most common benchmark/deployment mode:
+        // refill disabled means no clock read and no refill CAS.
+        if self.refill_per_sec == 0 {
+            return self.consume_tokens(n);
         }
+
+        self.try_refill(self.clock.now_ns());
+        self.consume_tokens(n)
     }
 
     /// Returns a bounded token estimate.
@@ -141,14 +130,58 @@ impl<C: Clock> RateLimiter<C> {
 
         Snapshot {
             tokens: self.bounded_tokens(),
-            last_refill_ns: self.last_refill_ns.load(Ordering::Acquire),
+            last_refill_ns: self.last_refill_ns.load(Ordering::Relaxed),
             capacity: self.capacity,
             refill_per_sec: self.refill_per_sec,
         }
     }
 
+    #[inline]
+    fn consume_tokens(&self, n: u64) -> bool {
+        let mut current = self.tokens.load(Ordering::Relaxed);
+        loop {
+            if current < n {
+                return false;
+            }
+
+            let next = current - n;
+            match self.tokens.compare_exchange_weak(
+                current,
+                next,
+                Ordering::Relaxed,
+                Ordering::Relaxed,
+            ) {
+                Ok(_) => return true,
+                Err(observed) => {
+                    current = observed;
+                    core::hint::spin_loop();
+                }
+            }
+        }
+    }
+
+    #[inline]
+    fn add_tokens(&self, add: u64) {
+        let mut current = self.tokens.load(Ordering::Relaxed);
+        loop {
+            let next = min(current.saturating_add(add), self.capacity);
+            match self.tokens.compare_exchange_weak(
+                current,
+                next,
+                Ordering::Relaxed,
+                Ordering::Relaxed,
+            ) {
+                Ok(_) => return,
+                Err(observed) => {
+                    current = observed;
+                    core::hint::spin_loop();
+                }
+            }
+        }
+    }
+
     fn bounded_tokens(&self) -> u64 {
-        min(self.tokens.load(Ordering::Acquire), self.capacity)
+        min(self.tokens.load(Ordering::Relaxed), self.capacity)
     }
 
     fn try_refill(&self, now_ns: u64) {
@@ -157,7 +190,7 @@ impl<C: Clock> RateLimiter<C> {
         }
 
         loop {
-            let last = self.last_refill_ns.load(Ordering::Acquire);
+            let last = self.last_refill_ns.load(Ordering::Relaxed);
             if now_ns <= last {
                 return;
             }
@@ -174,15 +207,11 @@ impl<C: Clock> RateLimiter<C> {
             match self.last_refill_ns.compare_exchange_weak(
                 last,
                 new_last,
-                Ordering::AcqRel,
-                Ordering::Acquire,
+                Ordering::Relaxed,
+                Ordering::Relaxed,
             ) {
                 Ok(_) => {
-                    let _ =
-                        self.tokens
-                            .fetch_update(Ordering::AcqRel, Ordering::Acquire, |current| {
-                                Some(min(current.saturating_add(add), self.capacity))
-                            });
+                    self.add_tokens(add);
                     return;
                 }
                 Err(_) => core::hint::spin_loop(),

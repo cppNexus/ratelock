@@ -8,6 +8,7 @@ license = "Apache-2.0"
 readme = "README.md"
 documentation = "https://docs.rs/rate-limit-core"
 homepage = "https://docs.rs/rate-limit-core"
+repository = "https://github.com/cppNexus/rate-limit-core.git"
 keywords = ["rate-limit", "token-bucket", "lock-free", "no-std", "throttling"]
 categories = ["algorithms", "concurrency", "no-std"]
 exclude = ["Test.md", "тз.md"]
@@ -18,6 +19,7 @@ std = []
 
 [dev-dependencies]
 criterion = "0.8.2"
+governor = "0.10.1"
 
 [[bench]]
 name = "compare"

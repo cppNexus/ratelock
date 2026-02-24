@@ -51,8 +51,10 @@
 mod clock;
 mod limiter;
 mod math;
+mod sharded;
 
 pub use clock::Clock;
 #[cfg(feature = "std")]
 pub use clock::StdClock;
 pub use limiter::{RateLimiter, Snapshot};
+pub use sharded::ShardedRateLimiter;
