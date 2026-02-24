@@ -12,7 +12,7 @@ use governor::clock::DefaultClock;
 use governor::state::direct::NotKeyed;
 use governor::state::InMemoryState;
 use governor::{Quota, RateLimiter as GovernorRateLimiter};
-use rate_limit_core::{Clock, RateLimiter, ShardedRateLimiter};
+use ratelock::{Clock, RateLimiter, ShardedRateLimiter};
 
 const OPS_PER_THREAD: u64 = 20_000;
 const THREADS_SET: [usize; 3] = [4, 8, 16];
@@ -106,7 +106,7 @@ fn bench_single_thread_governor_compare(c: &mut Criterion) {
     let mut group = c.benchmark_group("single_thread_governor_compare");
     group.throughput(Throughput::Elements(1));
 
-    group.bench_function("rate_limit_core_allow_hot", |b| {
+    group.bench_function("ratelock_allow_hot", |b| {
         b.iter(|| {
             black_box(black_box(core_limiter).allow());
         })
@@ -311,7 +311,7 @@ fn bench_multi_thread_governor_compare(c: &mut Criterion) {
     for threads in THREADS_SET {
         group.throughput(Throughput::Elements(threads as u64 * OPS_PER_THREAD));
         group.bench_with_input(
-            BenchmarkId::new("rate_limit_core_shared", threads),
+            BenchmarkId::new("ratelock_shared", threads),
             &threads,
             |b, &t| {
                 b.iter(|| {

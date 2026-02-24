@@ -1,6 +1,6 @@
 #![cfg(feature = "std")]
 
-use rate_limit_core::RateLimiter;
+use ratelock::RateLimiter;
 
 #[test]
 fn smoke_std_new_works() {

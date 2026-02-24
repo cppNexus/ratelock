@@ -1,6 +1,6 @@
 use std::sync::atomic::{AtomicU64, Ordering};
 
-use rate_limit_core::Clock;
+use ratelock::Clock;
 
 pub struct MockClock {
     now: AtomicU64,

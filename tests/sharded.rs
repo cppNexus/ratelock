@@ -4,7 +4,7 @@ mod clock_mock;
 use std::collections::hash_map::DefaultHasher;
 
 use clock_mock::MockClock;
-use rate_limit_core::ShardedRateLimiter;
+use ratelock::ShardedRateLimiter;
 
 #[test]
 fn sharded_hash_routes_independent_buckets() {
@@ -80,7 +80,8 @@ fn non_power_of_two_shards_use_modulo_distribution() {
 #[cfg(feature = "std")]
 #[test]
 fn std_key_helpers_cover_allow_n_and_snapshot() {
-    let limiter = ShardedRateLimiter::<_, 8>::new(10, 1_000);
+    // Keep this test deterministic across slow runtimes (Miri/CI) by disabling refill.
+    let limiter = ShardedRateLimiter::<_, 8>::new(10, 0);
     let key = "tenant:alpha";
 
     assert!(limiter.allow_n_by_key(&key, 4));

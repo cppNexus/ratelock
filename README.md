@@ -1,19 +1,19 @@
-# rate-limit-core
+# ratelock
 
-[![Crates.io](https://img.shields.io/crates/v/rate-limit-core.svg)](https://crates.io/crates/rate-limit-core)
-[![Docs.rs](https://img.shields.io/docsrs/rate-limit-core)](https://docs.rs/rate-limit-core)
-[![Downloads](https://img.shields.io/crates/d/rate-limit-core.svg)](https://crates.io/crates/rate-limit-core)
-[![MSRV](https://img.shields.io/badge/MSRV-1.88-success)](https://crates.io/crates/rate-limit-core)
-[![no_std](https://img.shields.io/badge/no__std-yes-brightgreen)](https://crates.io/crates/rate-limit-core)
+[![Crates.io](https://img.shields.io/crates/v/ratelock.svg)](https://crates.io/crates/ratelock)
+[![Docs.rs](https://img.shields.io/docsrs/ratelock)](https://docs.rs/ratelock)
+[![Downloads](https://img.shields.io/crates/d/ratelock.svg)](https://crates.io/crates/ratelock)
+[![MSRV](https://img.shields.io/badge/MSRV-1.88-success)](https://crates.io/crates/ratelock)
+[![no_std](https://img.shields.io/badge/no__std-yes-brightgreen)](https://crates.io/crates/ratelock)
 [![License](https://img.shields.io/badge/license-Apache%202.0-blue.svg)](LICENSE)
-[![CI](https://github.com/cppNexus/rate-limit-core/actions/workflows/ci.yml/badge.svg)](https://github.com/cppNexus/rate-limit-core/actions/workflows/ci.yml)
-[![Coverage](https://img.shields.io/badge/coverage-99%25-brightgreen)](https://github.com/cppNexus/rate-limit-core)
+[![CI](https://github.com/cppNexus/ratelock/actions/workflows/ci.yml/badge.svg)](https://github.com/cppNexus/ratelock/actions/workflows/ci.yml)
+[![Coverage](https://img.shields.io/badge/coverage-99%25-brightgreen)](https://github.com/cppNexus/ratelock)
 
 A minimal, auditable **token bucket** rate limiter for Rust.
 
-`rate-limit-core` is designed as a small core crate you can embed anywhere: API gateways, middleware, embedded services, job schedulers, or any hot path where lock contention and allocations hurt.
+`ratelock` is designed as a small core crate you can embed anywhere: API gateways, middleware, embedded services, job schedulers, or any hot path where lock contention and allocations hurt.
 
-Repository: `https://github.com/cppNexus/rate-limit-core.git`
+Repository: `https://github.com/cppNexus/ratelock.git`
 
 ## Problem Statement
 
@@ -23,7 +23,7 @@ Most rate-limit crates are convenient, but frequently include one or more of the
 - blocking synchronization primitives,
 - tight coupling to async runtimes or framework-specific adapters.
 
-`rate-limit-core` focuses on a small, deterministic kernel that is easy to audit and benchmark.
+`ratelock` focuses on a small, deterministic kernel that is easy to audit and benchmark.
 
 ## Design Goals
 
@@ -45,7 +45,7 @@ Most rate-limit crates are convenient, but frequently include one or more of the
 ## Minimal Example
 
 ```rust
-use rate_limit_core::RateLimiter;
+use ratelock::RateLimiter;
 
 let limiter = RateLimiter::new(100, 20); // capacity=100, refill=20/sec
 
@@ -59,7 +59,7 @@ if limiter.allow() {
 Batch usage:
 
 ```rust
-use rate_limit_core::RateLimiter;
+use ratelock::RateLimiter;
 
 let limiter = RateLimiter::new(1000, 100);
 assert!(limiter.allow_n(100));
@@ -125,11 +125,11 @@ Environment: Apple M3 Pro · macOS Tahoe 26.3 · 18 GB RAM · 2026-02-24
 
 Full results: see [`BENCHMARKS.md`](BENCHMARKS.md) or open `target/criterion/report/index.html` after running the suite.
 
-### rate-limit-core vs governor
+### ratelock vs governor
 
 > Numbers from the `multi_thread_governor_compare/*` benchmark group. `governor` version: `0.10.1`.
 
-| Scenario | rate-limit-core | governor | Speedup |
+| Scenario | ratelock | governor | Speedup |
 |---|---:|---:|---:|
 | Single-thread hot check | `524.90 M ops/s` | `233.21 M ops/s` | `2.25×` |
 | Shared limiter, 4 threads | `41.99 M ops/s` | `26.75 M ops/s` | `1.57×` |
@@ -202,7 +202,7 @@ cargo bench --bench compare -- --noplot
 Built-in sharding helper:
 
 ```rust
-use rate_limit_core::ShardedRateLimiter;
+use ratelock::ShardedRateLimiter;
 
 const SHARDS: usize = 64;
 let limiter = ShardedRateLimiter::<_, SHARDS>::new(10_000, 1_000);
@@ -212,7 +212,7 @@ assert!(allowed);
 
 ## Comparison (Qualitative)
 
-| Property            | rate-limit-core |
+| Property            | ratelock |
 |---------------------|-----------------|
 | Dependencies        | 0               |
 | Allocations         | 0               |

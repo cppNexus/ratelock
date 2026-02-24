@@ -1,5 +1,5 @@
 [package]
-name = "rate-limit-core"
+name = "ratelock"
 authors = ["CppNexus <cppnexus@proton.me>"]
 version = "0.1.0"
 edition = "2021"
@@ -7,9 +7,9 @@ rust-version = "1.70"
 description = "Zero-dependency, zero-allocation, lock-free token bucket rate limiter for Rust (std + no_std)."
 license = "Apache-2.0"
 readme = "README.md"
-documentation = "https://docs.rs/rate-limit-core"
-homepage = "https://github.com/cppNexus/rate-limit-core"
-repository = "https://github.com/cppNexus/rate-limit-core.git"
+documentation = "https://docs.rs/ratelock"
+homepage = "https://github.com/cppNexus/ratelock"
+repository = "https://github.com/cppNexus/ratelock.git"
 keywords = ["rate-limit", "token-bucket", "lock-free", "no-std", "throttling"]
 categories = ["algorithms", "concurrency", "no-std"]
 exclude = [".github/", "target/"]

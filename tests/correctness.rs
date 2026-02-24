@@ -3,7 +3,7 @@ mod clock_mock;
 use std::sync::atomic::{AtomicU32, Ordering};
 
 use clock_mock::MockClock;
-use rate_limit_core::{Clock, RateLimiter};
+use ratelock::{Clock, RateLimiter};
 
 #[test]
 fn init_tokens_equal_capacity() {

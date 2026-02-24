@@ -21,7 +21,7 @@
 //! ```rust
 //! # #[cfg(feature = "std")]
 //! # {
-//! use rate_limit_core::RateLimiter;
+//! use ratelock::RateLimiter;
 //!
 //! let limiter = RateLimiter::new(10, 5);
 //! assert!(limiter.allow());
@@ -31,7 +31,7 @@
 //!
 //! # Example (`no_std` compatible API)
 //! ```rust
-//! use rate_limit_core::{Clock, RateLimiter};
+//! use ratelock::{Clock, RateLimiter};
 //!
 //! struct FixedClock(u64);
 //! impl Clock for FixedClock {

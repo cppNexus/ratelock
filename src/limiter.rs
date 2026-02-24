@@ -56,7 +56,7 @@ impl<C: Clock> RateLimiter<C> {
     /// ```rust
     /// # #[cfg(feature = "std")]
     /// # {
-    /// use rate_limit_core::RateLimiter;
+    /// use ratelock::RateLimiter;
     ///
     /// let limiter = RateLimiter::new(10, 5);
     /// assert!(limiter.allow());
@@ -76,7 +76,7 @@ impl<C: Clock> RateLimiter<C> {
     /// ```rust
     /// # #[cfg(feature = "std")]
     /// # {
-    /// use rate_limit_core::RateLimiter;
+    /// use ratelock::RateLimiter;
     ///
     /// let limiter = RateLimiter::new(100, 10);
     /// assert!(limiter.allow_n(10));

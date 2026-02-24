@@ -1,7 +1,7 @@
 mod clock_mock;
 
 use clock_mock::MockClock;
-use rate_limit_core::RateLimiter;
+use ratelock::RateLimiter;
 
 #[test]
 fn max_capacity_no_panic() {

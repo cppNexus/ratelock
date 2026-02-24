@@ -1,6 +1,6 @@
 # Benchmarks
 
-Full benchmark results for `rate-limit-core`.
+Full benchmark results for `ratelock`.
 
 Environment: Apple M3 Pro · macOS Tahoe 26.3 · 18 GB RAM · 2026-02-24
 
@@ -22,11 +22,11 @@ Environment: Apple M3 Pro · macOS Tahoe 26.3 · 18 GB RAM · 2026-02-24
 | `multi_thread_sharded_hot_path/8` | `2.155 – 2.165 ms` | `73.904 – 74.243 M ops/s` |
 | `multi_thread_sharded_hot_path/16` | `4.398 – 4.408 ms` | `72.601 – 72.758 M ops/s` |
 
-## rate-limit-core vs governor
+## ratelock vs governor
 
 > Numbers from the `multi_thread_governor_compare/*` group. `governor` version: `0.10.1`.
 
-| Scenario | rate-limit-core | governor | Speedup |
+| Scenario | ratelock | governor | Speedup |
 |---|---:|---:|---:|
 | Single-thread hot check | `524.90 M ops/s` | `233.21 M ops/s` | `2.25×` |
 | Shared limiter, 4 threads | `41.99 M ops/s` | `26.75 M ops/s` | `1.57×` |

@@ -4,7 +4,7 @@ use std::sync::atomic::{AtomicU64, Ordering};
 use std::sync::{Arc, Barrier};
 use std::thread;
 
-use rate_limit_core::RateLimiter;
+use ratelock::RateLimiter;
 
 #[test]
 fn concurrent_allow_no_overdraft() {
