@@ -12,7 +12,7 @@ homepage = "https://github.com/cppNexus/ratelock"
 repository = "https://github.com/cppNexus/ratelock.git"
 keywords = ["rate-limit", "token-bucket", "lock-free", "no-std", "throttling"]
 categories = ["algorithms", "concurrency", "no-std"]
-exclude = [".github/", "target/"]
+exclude = [".github/", "target/","Cargo.lock"]
 
 [features]
 default = ["std"]
