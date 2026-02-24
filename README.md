@@ -3,7 +3,7 @@
 [![Crates.io](https://img.shields.io/crates/v/ratelock.svg)](https://crates.io/crates/ratelock)
 [![Docs.rs](https://img.shields.io/docsrs/ratelock)](https://docs.rs/ratelock)
 [![Downloads](https://img.shields.io/crates/d/ratelock.svg)](https://crates.io/crates/ratelock)
-[![MSRV](https://img.shields.io/badge/MSRV-1.88-success)](https://crates.io/crates/ratelock)
+[![MSRV](https://img.shields.io/badge/MSRV-1.70-success)](https://crates.io/crates/ratelock)
 [![no_std](https://img.shields.io/badge/no__std-yes-brightgreen)](https://crates.io/crates/ratelock)
 [![License](https://img.shields.io/badge/license-Apache%202.0-blue.svg)](LICENSE)
 [![CI](https://github.com/cppNexus/ratelock/actions/workflows/ci.yml/badge.svg)](https://github.com/cppNexus/ratelock/actions/workflows/ci.yml)
