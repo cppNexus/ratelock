@@ -1,9 +1,13 @@
 # rate-limit-core
 
-[![crates.io](https://img.shields.io/crates/v/rate-limit-core.svg)](https://crates.io/crates/rate-limit-core)
-[![docs.rs](https://img.shields.io/docsrs/rate-limit-core)](https://docs.rs/rate-limit-core)
-[![CI](https://github.com/cppNexus/rate-limit-core/actions/workflows/ci.yml/badge.svg)](https://github.com/cppNexus/rate-limit-core/actions)
-[![License: Apache-2.0](https://img.shields.io/badge/license-Apache--2.0-blue.svg)](LICENSE.md)
+[![Crates.io](https://img.shields.io/crates/v/rate-limit-core.svg)](https://crates.io/crates/rate-limit-core)
+[![Docs.rs](https://img.shields.io/docsrs/rate-limit-core)](https://docs.rs/rate-limit-core)
+[![Downloads](https://img.shields.io/crates/d/rate-limit-core.svg)](https://crates.io/crates/rate-limit-core)
+[![MSRV](https://img.shields.io/badge/MSRV-1.88-success)](https://crates.io/crates/rate-limit-core)
+[![no_std](https://img.shields.io/badge/no__std-yes-brightgreen)](https://crates.io/crates/rate-limit-core)
+[![License](https://img.shields.io/badge/license-Apache%202.0-blue.svg)](LICENSE)
+[![CI](https://github.com/cppNexus/rate-limit-core/actions/workflows/ci.yml/badge.svg)](https://github.com/cppNexus/rate-limit-core/actions/workflows/ci.yml)
+[![Coverage](https://img.shields.io/badge/coverage-99%25-brightgreen)](https://github.com/cppNexus/rate-limit-core)
 
 A minimal, auditable **token bucket** rate limiter for Rust.
 
