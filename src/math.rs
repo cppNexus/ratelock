@@ -16,7 +16,9 @@ pub(crate) fn elapsed_for_tokens(tokens: u64, refill_per_sec: u64) -> u64 {
         return 0;
     }
 
-    let elapsed = (tokens as u128).saturating_mul(NANOS_PER_SEC) / (refill_per_sec as u128);
+    let numerator = (tokens as u128).saturating_mul(NANOS_PER_SEC);
+    let rate = refill_per_sec as u128;
+    let elapsed = numerator / rate + u128::from(numerator % rate != 0);
     elapsed.min(u64::MAX as u128) as u64
 }
 
@@ -34,8 +36,10 @@ mod tests {
     }
 
     #[test]
-    fn elapsed_for_tokens_matches_inverse_floor() {
+    fn elapsed_for_tokens_rounds_up() {
         assert_eq!(elapsed_for_tokens(1, 10), 100_000_000);
+        assert_eq!(elapsed_for_tokens(1, 3), 333_333_334);
+        assert_eq!(elapsed_for_tokens(3, 10), 300_000_000);
         assert_eq!(elapsed_for_tokens(0, 10), 0);
         assert_eq!(elapsed_for_tokens(1, 0), 0);
     }

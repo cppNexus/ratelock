@@ -18,6 +18,7 @@ Repository: `https://github.com/cppNexus/ratelock.git`
 ## Problem Statement
 
 Most rate-limit crates are convenient, but frequently include one or more of these trade-offs:
+
 - extra dependencies,
 - allocation-heavy internals,
 - blocking synchronization primitives,
@@ -29,7 +30,7 @@ Most rate-limit crates are convenient, but frequently include one or more of the
 
 - `0` heap allocations in steady-state operations.
 - `0` `unsafe` code.
-- lock-free internals (`AtomicU64`, no `Mutex`/`RwLock`).
+- CAS-based atomics without mutexes; concurrent refill may be temporarily invisible if a thread is preempted.
 - deterministic refill behavior via pluggable `Clock`.
 - `no_std`-compatible core.
 - straightforward API: `allow`, `allow_n`, `remaining`, `snapshot`.
@@ -84,6 +85,7 @@ assert_eq!(limiter.remaining(), 900);
 - **No unsafe code**.
 - `remaining() <= capacity` is always maintained.
 - `allow_n` token deduction is atomic: if it returns `false`, tokens are not deducted.
+- Refill claims the elapsed interval before adding tokens in a separate atomic update. A thread paused between those updates can cause temporary conservative denials until it resumes; the limiter does not promise exact refill visibility under thread preemption.
 - If a clock returns a timestamp lower than the previous one, refill is skipped (defensive behavior).
 
 ## `no_std`
@@ -103,6 +105,7 @@ Use `with_clock` in `no_std` mode by providing your own `Clock` implementation.
 ### Why is it fast?
 
 The steady-state hot path:
+
 - does not call the clock
 - does not perform u128 math
 - does not allocate
@@ -115,7 +118,7 @@ The hot-path approaches the cost of a single atomic decrement in optimized build
 Environment: Apple M3 Pro · macOS Tahoe 26.3 · 18 GB RAM · 2026-02-24
 
 | Scenario | Throughput |
-|---|---:|
+| --- | ---: |
 | Single-thread hot check | `~520 M ops/s` |
 | Shared limiter, 4 threads | `~43 M ops/s` |
 | Shared limiter, 8 threads | `~17 M ops/s` |
@@ -125,12 +128,16 @@ Environment: Apple M3 Pro · macOS Tahoe 26.3 · 18 GB RAM · 2026-02-24
 
 Full results: see [`BENCHMARKS.md`](BENCHMARKS.md) or open `target/criterion/report/index.html` after running the suite.
 
+The summary above is the 2026-02-24 baseline, measured before shard padding. A separate run of the padded implementation on another Apple Silicon host is recorded in [`BENCHMARKS.md`](BENCHMARKS.md); those results are not directly comparable across hosts.
+
 ### ratelock vs governor
 
 > Numbers from the `multi_thread_governor_compare/*` benchmark group. `governor` version: `0.10.1`.
 
+> The `ratelock` side currently uses `refill_per_sec = 0`, so it does not read a clock; `governor` still reads its clock. These figures compare the no-refill atomic fast path with `governor`'s check path, not equivalent refill behavior.
+
 | Scenario | ratelock | governor | Speedup |
-|---|---:|---:|---:|
+| --- | ---: | ---: | ---: |
 | Single-thread hot check | `524.90 M ops/s` | `233.21 M ops/s` | `2.25×` |
 | Shared limiter, 4 threads | `41.99 M ops/s` | `26.75 M ops/s` | `1.57×` |
 | Shared limiter, 8 threads | `12.37 M ops/s` | `11.10 M ops/s` | `1.11×` |
@@ -141,13 +148,14 @@ Full results: see [`BENCHMARKS.md`](BENCHMARKS.md) or open `target/criterion/rep
 Benchmarks are split into four modes:
 
 | Mode | What it measures | Criterion group |
-|------|------------------|-----------------|
+| --- | --- | --- |
 | `hot-path` | Shared limiter with `refill_per_sec = 0` (pure atomic contention path) | `single_thread_hot_path/*`, `multi_thread_hot_path/*` |
 | `refill-path` | Shared limiter with `refill_per_sec > 0` and manual clock ticks | `single_thread_refill_path/*`, `multi_thread_refill_path/*` |
 | `sharded-hot-path` | `N` independent limiters selected by hash (reduced contention) | `multi_thread_sharded_hot_path/*` |
 | `governor-compare` | Head-to-head overhead comparison vs `governor` | `single_thread_governor_compare/*`, `multi_thread_governor_compare/*` |
 
 Multi-thread groups are tuned to avoid under-sampling warnings:
+
 - `sample_size(40)`
 - `measurement_time(12s)`
 - `warm_up_time(3s)`
@@ -197,7 +205,7 @@ cargo bench --bench compare -- --noplot
 
 - Designed for extreme single-instance hot path.
 - Under contention, throughput degrades due to shared atomic state.
-- For per-key/per-tenant limiting, sharding is the recommended pattern.
+- Sharding reduces contention, but does not provide per-key/per-tenant isolation: keys mapped to the same shard share one bucket and quota. Use a separate limiter per key when independent quotas are required.
 
 Built-in sharding helper:
 
@@ -206,6 +214,7 @@ use ratelock::ShardedRateLimiter;
 
 const SHARDS: usize = 64;
 let limiter = ShardedRateLimiter::<_, SHARDS>::new(10_000, 1_000);
+// Keys that land on the same shard share that shard's quota.
 let allowed = limiter.allow_by_key(&"tenant:42");
 assert!(allowed);
 ```
@@ -218,7 +227,7 @@ assert!(allowed);
 | Allocations         | 0               |
 | Unsafe              | 0               |
 | no_std core         | Yes             |
-| Lock-free           | Yes             |
+| Lock-free progress  | CAS-based system-wide progress; concurrent refill can be temporarily undercounted |
 | Built-in sharding   | Yes             |
 | Async waiting       | No              |
 | Framework adapters  | No              |

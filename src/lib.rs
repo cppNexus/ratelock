@@ -14,6 +14,9 @@
 //! # Behavior guarantees
 //! - [`RateLimiter::remaining`] is always bounded by `capacity`
 //! - [`RateLimiter::allow_n`] is atomic for token deduction
+//! - Concurrent refill is not exactly visible if a thread is preempted between
+//!   reserving elapsed time and crediting tokens; this can cause temporary
+//!   conservative denials
 //! - If time goes backwards (`now < last_refill`), refill is skipped
 //! - All public operations are panic-free
 //!

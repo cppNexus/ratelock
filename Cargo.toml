@@ -1,7 +1,7 @@
 [package]
 name = "ratelock"
 authors = ["CppNexus <cppnexus@proton.me>"]
-version = "0.1.0"
+version = "0.1.1"
 edition = "2021"
 rust-version = "1.70"
 description = "Zero-dependency, zero-allocation, lock-free token bucket rate limiter for Rust (std + no_std)."

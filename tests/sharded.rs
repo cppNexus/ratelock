@@ -1,8 +1,5 @@
 mod clock_mock;
 
-#[cfg(feature = "std")]
-use std::collections::hash_map::DefaultHasher;
-
 use clock_mock::MockClock;
 use ratelock::ShardedRateLimiter;
 
@@ -18,6 +15,15 @@ fn sharded_hash_routes_independent_buckets() {
 
     assert!(limiter.allow_by_hash(11));
     assert!(!limiter.allow_by_hash(11));
+}
+
+#[test]
+fn hashes_with_the_same_shard_index_share_quota() {
+    let clock = MockClock::new(0);
+    let limiter = ShardedRateLimiter::<_, 4>::with_clock(1, 0, &clock);
+
+    assert!(limiter.allow_by_hash(2));
+    assert!(!limiter.allow_by_hash(6));
 }
 
 #[test]
@@ -90,10 +96,5 @@ fn std_key_helpers_cover_allow_n_and_snapshot() {
         .expect("snapshot_by_key must return a shard snapshot");
     assert_eq!(snap.capacity, 10);
     assert_eq!(limiter.remaining_by_key(&key), 6);
-
-    let stable_hash = limiter.hash_key_with::<DefaultHasher, _>(&key);
-    assert_eq!(
-        limiter.remaining_by_hash(stable_hash),
-        limiter.remaining_by_key(&key)
-    );
+    assert_eq!(snap.tokens, 6);
 }

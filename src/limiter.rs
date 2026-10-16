@@ -8,7 +8,9 @@ use crate::StdClock;
 
 /// Non-allocating lock-free token bucket.
 ///
-/// Tokens are deducted atomically. Refill happens lazily during API calls.
+/// Token deductions are atomic. Refill is lazy and updates its timestamp and
+/// token count separately, so a concurrent call can briefly observe a
+/// conservative undercount while another thread completes a refill.
 pub struct RateLimiter<C: Clock> {
     capacity: u64,
     refill_per_sec: u64,
